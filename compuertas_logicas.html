@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Interactivo de Compuertas Lógicas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .gates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .gate-card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .gate-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .gate-card h3 {
+            color: #764ba2;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .gate-icon {
+            font-size: 1.5em;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .tab-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .input-controls {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .toggle-switch {
+            display: inline-flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .toggle-btn {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .toggle-btn.active {
+            background: #90EE90;
+            border-color: #090;
+            color: #066;
+        }
+        
+        .toggle-btn:not(.active) {
+            background: #FFB6C6;
+            border-color: #c00;
+            color: #833;
+        }
+        
+        .result-display {
+            background: white;
+            border: 2px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            margin: 5px 0;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .result-value {
+            font-size: 1.2em;
+            font-weight: 700;
+            padding: 5px 15px;
+            border-radius: 5px;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.95em;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+        
+        tr:hover {
+            background: #e8eaf6;
+        }
+        
+        .circuit-section {
+            background: #f0f4ff;
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        
+        .circuit-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .formula {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            color: #333;
+            border-left: 4px solid #764ba2;
+        }
+        
+        .logic-cell-1 {
+            background: #90EE90;
+            font-weight: 600;
+            color: #066;
+        }
+        
+        .logic-cell-0 {
+            background: #FFB6C6;
+            font-weight: 600;
+            color: #833;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            color: #1565c0;
+        }
+        
+        .footer {
+            background: #f5f5f5;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #ddd;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .gates-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 0.85em;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+            
+            .tab-buttons {
+                gap: 5px;
+            }
+            
+            .tab-btn {
+                padding: 8px 12px;
+                font-size: 0.9em;
+            }
+        }
+        
+        /* ANIMACIONES PERSONALIZADAS */
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ Simulador Interactivo de Compuertas Lógicas</h1>
+            <p>Electrónica Digital - Prueba las Compuertas en Tiempo Real</p>
+        </div>
+        
+        <div class="content">
+            <!-- Pestañas de navegación -->
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab(event, 'simulator')">🎮 Simulador</button>
+                <button class="tab-btn" onclick="switchTab(event, 'gates')">🔌 Compuertas Básicas</button>
+                <button class="tab-btn" onclick="switchTab(event, 'not')">🔄 Compuerta NOT</button>
+                <button class="tab-btn" onclick="switchTab(event, 'circuit')">🔗 Circuito Combinacional</button>
+            </div>
+            
+            <!-- TAB 1: SIMULADOR INTERACTIVO -->
+            <div id="simulator" class="tab-content active">
+                <div class="section">
+                    <h2>🎮 Simulador Interactivo</h2>
+                    <div class="info-box">
+                        <strong>Instrucciones:</strong> Selecciona los valores de entrada y observa cómo cambian los resultados en tiempo real.
+                    </div>
+                    
+                    <!-- SIMULADOR VISUAL DE CABALLETE LATERAL DE MOTOCICLETA -->
+                    <h3 style="color: #667eea; margin: 30px 0 20px 0;">🏍️ Sistema de Seguridad: Caballete Lateral</h3>
+                    <div style="background: #f8f9fa; padding: 30px; border-radius: 8px; margin-bottom: 30px;">
+                        
+                        <!-- LAYOUT PRINCIPAL: Controles - Caballete - Estado -->
+                        <div style="display: flex; gap: 40px; align-items: center; justify-content: center; min-height: 450px; position: relative;">
+                            
+                            <!-- LADO IZQUIERDO: CONTROLES VERTICALES -->
+                            <div style="flex: 0 0 auto; display: flex; flex-direction: column; gap: 15px; min-width: 120px; align-items: stretch;">
+                                <div style="text-align: center; margin-bottom: 10px;">
+                                    <p style="font-weight: 600; color: #667eea; margin: 0; font-size: 0.9em;">Control</p>
+                                </div>
+                                
+                                <button onclick="moveObjectUp()" style="
+                                    padding: 12px 20px;
+                                    background: #667eea;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 5px;
+                                    cursor: pointer;
+                                    font-weight: 600;
+                                    font-size: 0.95em;
+                                    transition: all 0.3s ease;
+                                    width: 100%;
+                                " onmouseover="this.style.background='#764ba2'" onmouseout="this.style.background='#667eea'">
+                                    ⬆️ RETRAER
+                                </button>
+                                
+                                <button onclick="moveObjectDown()" style="
+                                    padding: 12px 20px;
+                                    background: #764ba2;
+                                    color: white;
+                                    border: none;
+                                    border-radius: 5px;
+                                    cursor: pointer;
+                                    font-weight: 600;
+                                    font-size: 0.95em;
+                                    transition: all 0.3s ease;
+                                    width: 100%;
+                                " onmouseover="this.style.background='#667eea'" onmouseout="this.style.background='#764ba2'">
+                                    ⬇️ EXTENDER
+                                </button>
+                                
+                                <div style="display: flex; flex-direction: column; gap: 10px; align-items: center; margin-top: 10px;">
+                                    <input type="range" id="objectSlider" min="0" max="250" value="0" 
+                                        onchange="setObjectPosition(this.value)" 
+                                        style="width: 100px; cursor: pointer; height: 8px; writing-mode: bt-lr;">
+                                    <span id="positionDisplay" style="font-weight: 600; color: #667eea; font-size: 0.85em; text-align: center;">Pos: 0px</span>
+                                </div>
+                            </div>
+                            
+                            <!-- CENTRO: MOTOCICLETA CON CABALLETE -->
+                            <div style="flex: 1; position: relative; height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 250px;">
+                                <div style="text-align: center; margin-bottom: 20px; width: 100%;">
+                                    <p style="font-weight: 600; color: #667eea; font-size: 1.1em; margin: 0;">🏍️ Motocicleta</p>
+                                </div>
+                                
+                                <!-- IMAGEN DE LA MOTO -->
+                                <img src="15.png" alt="Motocicleta Lateral" style="
+                                    max-width: 100%;
+                                    max-height: 300px;
+                                    object-fit: contain;
+                                    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+                                    margin-bottom: 20px;
+                                ">
+                                
+                                <!-- CABALLETE LATERAL (interactivo) -->
+                                <div id="kickstand" style="
+                                    position: absolute;
+                                    bottom: 20px;
+                                    left: 30px;
+                                    width: 80px;
+                                    height: 140px;
+                                    cursor: grab;
+                                    user-select: none;
+                                    border-radius: 4px;
+                                    padding: 5px;
+                                    background: rgba(102, 126, 234, 0.05);
+                                " onmousedown="startDrag(event)">
+                                    <svg width="80" height="140" viewBox="0 0 80 140" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3)); pointer-events: none;">
+                                        <!-- Soporte superior (anclaje) -->
+                                        <rect x="28" y="0" width="24" height="12" fill="#333" rx="2"/>
+                                        <circle cx="40" cy="6" r="4" fill="#222"/>
+                                        
+                                        <!-- Tubo principal del caballete (cilindro) -->
+                                        <line x1="40" y1="12" x2="40" y2="100" stroke="#444" stroke-width="8" stroke-linecap="round"/>
+                                        
+                                        <!-- Sensor/Actuador en la parte superior -->
+                                        <rect x="32" y="8" width="16" height="10" fill="#555" rx="1"/>
+                                        <circle cx="36" cy="13" r="2" fill="#888"/>
+                                        <circle cx="44" cy="13" r="2" fill="#888"/>
+                                        
+                                        <!-- Articulación central (pivote) -->
+                                        <circle cx="40" cy="55" r="5" fill="#333"/>
+                                        <circle cx="40" cy="55" r="3" fill="#555"/>
+                                        
+                                        <!-- Pie de apoyo (plataforma) -->
+                                        <rect x="20" y="98" width="40" height="12" fill="#555" rx="3"/>
+                                        <ellipse cx="40" cy="110" rx="22" ry="8" fill="#444"/>
+                                        
+                                        <!-- Goma de contacto -->
+                                        <ellipse cx="40" cy="115" rx="20" ry="6" fill="#222"/>
+                                        
+                                        <!-- Indicador de estado -->
+                                        <text id="kickstandStateLabel" x="40" y="130" text-anchor="middle" font-size="10" font-weight="bold" fill="#4caf50">EXTENDIDO</text>
+                                    </svg>
+                                </div>
+                            </div>
+                            
+                            <!-- LADO DERECHO: ESTADOS Y SISTEMA -->
+                            <div style="flex: 0 0 auto; position: relative; height: 380px; display: flex; flex-direction: column; justify-content: space-around; min-width: 180px;">
+                                <div style="text-align: center; margin-bottom: 5px;">
+                                    <p style="font-weight: 600; color: #667eea; font-size: 1em; margin: 0;">Estado</p>
+                                </div>
+                                
+                                <!-- MÁQUINA (cuando caballete está EN MAX) -->
+                                <div style="
+                                    width: 160px;
+                                    height: 85px;
+                                    background: linear-gradient(135deg, #2c3e50, #34495e);
+                                    border-radius: 8px;
+                                    border: 3px solid #1c2833;
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    justify-content: space-around;
+                                    padding: 10px;
+                                    margin: 0 auto;
+                                ">
+                                    <p style="color: white; font-weight: 600; font-size: 12px; margin: 0;">🔋 MOTOR</p>
+                                    <!-- LED Máquina -->
+                                    <div id="machineLED" style="
+                                        width: 35px;
+                                        height: 35px;
+                                        background: #8B0000;
+                                        border-radius: 50%;
+                                        box-shadow: 0 0 10px rgba(139, 0, 0, 0.3) inset;
+                                        transition: all 0.3s ease;
+                                    "></div>
+                                </div>
+                                
+                                <!-- Estado del Caballete -->
+                                <div style="
+                                    text-align: center;
+                                    padding: 12px;
+                                    background: white;
+                                    border: 2px solid #667eea;
+                                    border-radius: 8px;
+                                    margin: 0 auto;
+                                    width: 160px;
+                                ">
+                                    <p style="font-weight: 600; color: #667eea; font-size: 11px; margin: 0 0 6px 0;">Posición</p>
+                                    <p id="kickstandState" style="font-size: 1.6em; font-weight: 700; color: #764ba2; margin: 0;">MIN</p>
+                                </div>
+                                
+                                <!-- ALARMA (cuando caballete está EN MIN) -->
+                                <div style="
+                                    width: 160px;
+                                    height: 85px;
+                                    background: linear-gradient(135deg, #8B0000, #DC143C);
+                                    border-radius: 8px;
+                                    border: 3px solid #FF0000;
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    justify-content: space-around;
+                                    padding: 10px;
+                                    margin: 0 auto;
+                                ">
+                                    <p style="color: white; font-weight: 600; font-size: 12px; margin: 0;">🚨 SEGURIDAD</p>
+                                    <!-- LED Alarma -->
+                                    <div id="alarmLED" style="
+                                        width: 35px;
+                                        height: 35px;
+                                        background: #ff0000;
+                                        border-radius: 50%;
+                                        box-shadow: 0 0 20px rgba(255, 0, 0, 0.8) inset;
+                                        animation: blink 0.3s ease-in-out infinite;
+                                        transition: all 0.3s ease;
+                                    "></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Panel de Información -->
+                        <div style="margin-top: 30px; text-align: center;">
+                            <div class="result-display">
+                                <h3 style="color: #667eea; margin-bottom: 15px;">📋 Información del Sistema</h3>
+                                <div class="result-item">
+                                    <span class="result-label">Caballete en MAX (Extendido):</span>
+                                    <span class="result-value" id="kickstandMaxState" style="background: #FFB6C6; color: #833;">No</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">Motor Encendido:</span>
+                                    <span class="result-value" id="motorState" style="background: #FFB6C6; color: #833;">No</span>
+                                </div>
+                                <div class="result-item">
+                                    <span class="result-label">Alarma Activa:</span>
+                                    <span class="result-value" id="alarmActiveState" style="background: #90EE90; color: #066;">Sí</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Simulador de Compuertas de 2 Entradas -->
+                    <h3 style="color: #667eea; margin-top: 20px;">Compuertas de 2 Entradas</h3>
+                    <div class="input-controls">
+                        <div class="control-group">
+                            <label>Entrada A:</label>
+                            <div class="toggle-switch">
+                                <button class="toggle-btn active" onclick="setInput('A', 1)" id="btn-A-1">1</button>
+                                <button class="toggle-btn" onclick="setInput('A', 0)" id="btn-A-0">0</button>
+                                <span id="value-A" style="margin-left: 20px; font-weight: 600; color: #667eea;">A = 1</span>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label>Entrada B:</label>
+                            <div class="toggle-switch">
+                                <button class="toggle-btn active" onclick="setInput('B', 1)" id="btn-B-1">1</button>
+                                <button class="toggle-btn" onclick="setInput('B', 0)" id="btn-B-0">0</button>
+                                <span id="value-B" style="margin-left: 20px; font-weight: 600; color: #667eea;">B = 1</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-display">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">Resultados para A y B</h3>
+                        <div class="result-item">
+                            <span class="result-label">AND (A ∧ B):</span>
+                            <span class="result-value" id="result-and">1</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">OR (A ∨ B):</span>
+                            <span class="result-value" id="result-or">1</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">NAND (A ⊼ B):</span>
+                            <span class="result-value" id="result-nand">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">NOR (A ⊽ B):</span>
+                            <span class="result-value" id="result-nor">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">XOR (A ⊕ B):</span>
+                            <span class="result-value" id="result-xor">0</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Simulador de NOT -->
+                    <h3 style="color: #667eea; margin-top: 30px;">Compuerta NOT (Inversor)</h3>
+                    <div class="input-controls">
+                        <div class="control-group">
+                            <label>Entrada A:</label>
+                            <div class="toggle-switch">
+                                <button class="toggle-btn active" onclick="setInputNot('not-A', 1)" id="btn-not-A-1">1</button>
+                                <button class="toggle-btn" onclick="setInputNot('not-A', 0)" id="btn-not-A-0">0</button>
+                                <span id="value-not-A" style="margin-left: 20px; font-weight: 600; color: #667eea;">A = 1</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-display">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">Resultado</h3>
+                        <div class="result-item">
+                            <span class="result-label">NOT A (¬A):</span>
+                            <span class="result-value" id="result-not">0</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Simulador de Circuito Combinacional -->
+                    <h3 style="color: #667eea; margin-top: 30px;">Circuito Combinacional</h3>
+                    <div class="formula">Salida = (A AND B) AND (NOT C)</div>
+                    <div class="input-controls">
+                        <div class="control-group">
+                            <label>Entrada A:</label>
+                            <div class="toggle-switch">
+                                <button class="toggle-btn active" onclick="setCircuitInput('circ-A', 1)" id="btn-circ-A-1">1</button>
+                                <button class="toggle-btn" onclick="setCircuitInput('circ-A', 0)" id="btn-circ-A-0">0</button>
+                                <span id="value-circ-A" style="margin-left: 20px; font-weight: 600; color: #667eea;">A = 1</span>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label>Entrada B:</label>
+                            <div class="toggle-switch">
+                                <button class="toggle-btn active" onclick="setCircuitInput('circ-B', 1)" id="btn-circ-B-1">1</button>
+                                <button class="toggle-btn" onclick="setCircuitInput('circ-B', 0)" id="btn-circ-B-0">0</button>
+                                <span id="value-circ-B" style="margin-left: 20px; font-weight: 600; color: #667eea;">B = 1</span>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label>Entrada C:</label>
+                            <div class="toggle-switch">
+                                <button class="toggle-btn" onclick="setCircuitInput('circ-C', 1)" id="btn-circ-C-1">1</button>
+                                <button class="toggle-btn active" onclick="setCircuitInput('circ-C', 0)" id="btn-circ-C-0">0</button>
+                                <span id="value-circ-C" style="margin-left: 20px; font-weight: 600; color: #667eea;">C = 0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-display">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">Resultados Intermedios y Final</h3>
+                        <div class="result-item">
+                            <span class="result-label">A AND B:</span>
+                            <span class="result-value" id="result-circ-and">1</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">NOT C:</span>
+                            <span class="result-value" id="result-circ-not">1</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label" style="font-size: 1.1em;"><strong>(A AND B) AND (NOT C):</strong></span>
+                            <span class="result-value" id="result-circ-final" style="font-size: 1.3em; font-weight: 700;">1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- TAB 2: COMPUERTAS BÁSICAS -->
+            <div id="gates" class="tab-content">
+                <div class="section">
+                    <h2>🔌 Compuertas Lógicas Básicas (Entrada: 2 bits)</h2>
+                    <div class="info-box">
+                        <strong>Nota:</strong> Las compuertas AND, OR, NAND, NOR y XOR requieren 2 entradas binarias.
+                    </div>
+                    <div class="gates-grid" id="gatesContainer"></div>
+                </div>
+            </div>
+            
+            <!-- TAB 3: COMPUERTA NOT -->
+            <div id="not" class="tab-content">
+                <div class="section">
+                    <h2>🔄 Compuerta NOT (Inversor)</h2>
+                    <div class="gates-grid">
+                        <div class="gate-card">
+                            <h3><span class="gate-icon">¬</span> Compuerta NOT</h3>
+                            <table id="notTable">
+                                <thead>
+                                    <tr>
+                                        <th>A</th>
+                                        <th>NOT A</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- TAB 4: CIRCUITO COMBINACIONAL -->
+            <div id="circuit" class="tab-content">
+                <div class="section">
+                    <h2>🔗 Circuito Combinacional</h2>
+                    <div class="circuit-section">
+                        <h3>Fórmula:</h3>
+                        <div class="formula">Salida = (A AND B) AND (NOT C)</div>
+                        <p>Este circuito combina AND y NOT para crear una función lógica más compleja con 3 entradas.</p>
+                        <table id="circuitTable">
+                            <thead>
+                                <tr>
+                                    <th>A</th>
+                                    <th>B</th>
+                                    <th>C</th>
+                                    <th>A AND B</th>
+                                    <th>NOT C</th>
+                                    <th>(A AND B) AND (NOT C)</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>💻 Simulador Interactivo en JavaScript | Electrónica Digital</p>
+        </div>
+    </div>
+
+    <script>
+        // ==================== VARIABLES GLOBALES ====================
+        let isDragging = false;
+        let dragStartY = 0;
+        let dragStartPosition = 0;
+        let objectPosition = 0; // Posición del caballete (0-250px)
+        let inputA = 1;
+        let inputB = 1;
+        let inputNotA = 1;
+        let inputCircuitA = 1;
+        let inputCircuitB = 1;
+        let inputCircuitC = 0;
+        
+        // ==================== DEFINICIÓN DE COMPUERTAS LÓGICAS ====================
+        
+        function AND(a, b) {
+            return a & b;
+        }
+        
+        function OR(a, b) {
+            return a | b;
+        }
+        
+        function NOT(a) {
+            return a ? 0 : 1;
+        }
+        
+        function NAND(a, b) {
+            return NOT(AND(a, b));
+        }
+        
+        function NOR(a, b) {
+            return NOT(OR(a, b));
+        }
+        
+        function XOR(a, b) {
+            return a ^ b;
+        }
+        
+        // ==================== CONTROLES DEL OBJETO ====================
+        
+        function moveObjectUp() {
+            console.log('moveObjectUp() - antes:', objectPosition);
+            if (objectPosition > 0) {
+                objectPosition -= 10;
+                if (objectPosition < 0) objectPosition = 0;
+            } else {
+                objectPosition = 0;
+            }
+            console.log('moveObjectUp() - después:', objectPosition);
+            updateObjectPosition();
+        }
+        
+        function moveObjectDown() {
+            console.log('moveObjectDown() - antes:', objectPosition);
+            if (objectPosition < 250) {
+                objectPosition += 10;
+                if (objectPosition > 250) objectPosition = 250;
+            } else {
+                objectPosition = 250;
+            }
+            console.log('moveObjectDown() - después:', objectPosition);
+            updateObjectPosition();
+        }
+        
+        function setObjectPosition(value) {
+            console.log('setObjectPosition():', value);
+            objectPosition = parseInt(value);
+            updateObjectPosition();
+        }
+        
+        function updateObjectPosition() {
+            console.log('updateObjectPosition() llamado. objectPosition =', objectPosition);
+            
+            const slider = document.getElementById('objectSlider');
+            const posDisplay = document.getElementById('positionDisplay');
+            
+            if (!slider) {
+                console.error('ERROR: No se encontró objectSlider');
+                return;
+            }
+            if (!posDisplay) {
+                console.error('ERROR: No se encontró positionDisplay');
+                return;
+            }
+            
+            // Asegurarse que está dentro del rango
+            if (objectPosition < 0) objectPosition = 0;
+            if (objectPosition > 250) objectPosition = 250;
+            
+            slider.value = objectPosition;
+            posDisplay.textContent = `Pos: ${objectPosition}px`;
+            
+            console.log('Actualizado: slider.value =', slider.value, ', display =', posDisplay.textContent);
+            
+            checkSensorStatus();
+        }
+        
+        // ==================== DRAG AND DROP CON MOUSE ====================
+        
+        function startDrag(e) {
+            isDragging = true;
+            dragStartY = e.clientY;
+            dragStartPosition = objectPosition;
+            const kickstand = document.getElementById('kickstand');
+            kickstand.style.cursor = 'grabbing';
+            kickstand.style.background = 'rgba(102, 126, 234, 0.25)';
+            kickstand.style.boxShadow = '0 0 10px rgba(102, 126, 234, 0.5)';
+            e.preventDefault();
+        }
+        
+        function drag(e) {
+            if (!isDragging) return;
+            
+            const deltaY = e.clientY - dragStartY;
+            let newPosition = dragStartPosition + deltaY;
+            
+            if (newPosition < 0) newPosition = 0;
+            if (newPosition > 250) newPosition = 250;
+            
+            objectPosition = newPosition;
+            updateObjectPosition();
+        }
+        
+        function stopDrag(e) {
+            if (isDragging) {
+                isDragging = false;
+                const kickstand = document.getElementById('kickstand');
+                kickstand.style.cursor = 'grab';
+                kickstand.style.background = 'rgba(102, 126, 234, 0.05)';
+                kickstand.style.boxShadow = 'none';
+            }
+        }
+        
+        function checkSensorStatus() {
+            console.log('checkSensorStatus() - objectPosition:', objectPosition);
+            
+            const machineLED = document.getElementById('machineLED');
+            const alarmLED = document.getElementById('alarmLED');
+            const kickstandState = document.getElementById('kickstandState');
+            const motorState = document.getElementById('motorState');
+            const alarmActiveState = document.getElementById('alarmActiveState');
+            const kickstandMaxState = document.getElementById('kickstandMaxState');
+            const posDisplay = document.getElementById('positionDisplay');
+            const kickstandLabel = document.getElementById('kickstandStateLabel');
+            
+            // Verificar que existen los elementos
+            if (!machineLED || !alarmLED || !kickstandState || !motorState || !alarmActiveState || !kickstandMaxState || !posDisplay || !kickstandLabel) {
+                console.error('ERROR: Faltan elementos del DOM en checkSensorStatus()');
+                return;
+            }
+            
+            // Actualizar indicador de posición
+            posDisplay.textContent = `Pos: ${objectPosition}px`;
+            
+            // El caballete está en MAX (extendido) cuando está entre 0-30px
+            const isKickstandMax = objectPosition >= 0 && objectPosition <= 30;
+            
+            if (isKickstandMax) {
+                // CABALLETE EN MAX → MOTOR PUEDE ENCENDERSE, ALARMA DESACTIVADA
+                kickstandState.textContent = 'EXTENDIDO ✓';
+                kickstandState.style.color = '#4caf50';
+                
+                kickstandMaxState.textContent = 'Sí ✓';
+                kickstandMaxState.style.background = '#90EE90';
+                kickstandMaxState.style.color = '#066';
+                
+                // Motor encendido (LED verde brillante)
+                machineLED.style.background = '#4caf50';
+                machineLED.style.boxShadow = '0 0 20px rgba(76, 175, 80, 0.8) inset, 0 0 30px rgba(76, 175, 80, 0.6)';
+                machineLED.style.animation = 'blink 0.5s ease-in-out';
+                
+                motorState.textContent = 'Sí ✓';
+                motorState.style.background = '#90EE90';
+                motorState.style.color = '#066';
+                
+                // Alarma desactivada (LED gris oscuro sin parpadeo)
+                alarmLED.style.background = '#555';
+                alarmLED.style.boxShadow = '0 0 5px rgba(85, 85, 85, 0.3) inset';
+                alarmLED.style.animation = 'none';
+                
+                alarmActiveState.textContent = 'No';
+                alarmActiveState.style.background = '#90EE90';
+                alarmActiveState.style.color = '#066';
+                
+                // Actualizar label del caballete
+                kickstandLabel.textContent = 'EXTENDIDO';
+                kickstandLabel.style.fill = '#4caf50';
+                
+            } else {
+                // CABALLETE EN MIN → MOTOR APAGADO, ALARMA ACTIVA
+                kickstandState.textContent = 'RETRAÍDO';
+                kickstandState.style.color = '#c00';
+                
+                kickstandMaxState.textContent = 'No';
+                kickstandMaxState.style.background = '#FFB6C6';
+                kickstandMaxState.style.color = '#833';
+                
+                // Motor apagado (LED rojo oscuro)
+                machineLED.style.background = '#8B0000';
+                machineLED.style.boxShadow = '0 0 10px rgba(139, 0, 0, 0.3) inset';
+                machineLED.style.animation = 'none';
+                
+                motorState.textContent = 'No';
+                motorState.style.background = '#FFB6C6';
+                motorState.style.color = '#833';
+                
+                // Alarma activa (LED rojo parpadeante)
+                alarmLED.style.background = '#ff0000';
+                alarmLED.style.boxShadow = '0 0 20px rgba(255, 0, 0, 0.8) inset, 0 0 30px rgba(255, 0, 0, 0.6)';
+                alarmLED.style.animation = 'blink 0.3s ease-in-out infinite';
+                
+                alarmActiveState.textContent = 'Sí 🚨';
+                alarmActiveState.style.background = '#FFB6C6';
+                alarmActiveState.style.color = '#c00';
+                alarmActiveState.style.fontWeight = 'bold';
+                
+                // Actualizar label del caballete
+                kickstandLabel.textContent = 'RETRAÍDO';
+                kickstandLabel.style.fill = '#c00';
+            }
+        }
+        
+        // ==================== SISTEMA DE PESTAÑAS ====================
+        
+        function switchTab(evt, tabName) {
+            const tabcontent = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove('active');
+            }
+            
+            const tabbtns = document.getElementsByClassName('tab-btn');
+            for (let i = 0; i < tabbtns.length; i++) {
+                tabbtns[i].classList.remove('active');
+            }
+            
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+        
+        // ==================== CONTROLES INTERACTIVOS ====================
+        
+        function setInput(variable, value) {
+            if (variable === 'A') {
+                inputA = value;
+                updateButtonState('A', value);
+                document.getElementById('value-A').textContent = `A = ${value}`;
+            } else if (variable === 'B') {
+                inputB = value;
+                updateButtonState('B', value);
+                document.getElementById('value-B').textContent = `B = ${value}`;
+            }
+            updateResults();
+        }
+        
+        function setInputNot(variable, value) {
+            inputNotA = value;
+            updateButtonState('not-A', value);
+            document.getElementById('value-not-A').textContent = `A = ${value}`;
+            updateNotResult();
+        }
+        
+        function setCircuitInput(variable, value) {
+            if (variable === 'circ-A') {
+                inputCircuitA = value;
+                updateButtonState('circ-A', value);
+                document.getElementById('value-circ-A').textContent = `A = ${value}`;
+            } else if (variable === 'circ-B') {
+                inputCircuitB = value;
+                updateButtonState('circ-B', value);
+                document.getElementById('value-circ-B').textContent = `B = ${value}`;
+            } else if (variable === 'circ-C') {
+                inputCircuitC = value;
+                updateButtonState('circ-C', value);
+                document.getElementById('value-circ-C').textContent = `C = ${value}`;
+            }
+            updateCircuitResults();
+        }
+        
+        function updateButtonState(prefix, value) {
+            const btn1 = document.getElementById(`btn-${prefix}-1`);
+            const btn0 = document.getElementById(`btn-${prefix}-0`);
+            
+            if (value === 1) {
+                btn1.classList.add('active');
+                btn0.classList.remove('active');
+            } else {
+                btn0.classList.add('active');
+                btn1.classList.remove('active');
+            }
+        }
+        
+        function updateResults() {
+            const and = AND(inputA, inputB);
+            const or = OR(inputA, inputB);
+            const nand = NAND(inputA, inputB);
+            const nor = NOR(inputA, inputB);
+            const xor = XOR(inputA, inputB);
+            
+            updateResultDisplay('and', and);
+            updateResultDisplay('or', or);
+            updateResultDisplay('nand', nand);
+            updateResultDisplay('nor', nor);
+            updateResultDisplay('xor', xor);
+        }
+        
+        function updateNotResult() {
+            const notResult = NOT(inputNotA);
+            updateResultDisplay('not', notResult);
+        }
+        
+        function updateCircuitResults() {
+            const andAB = AND(inputCircuitA, inputCircuitB);
+            const notC = NOT(inputCircuitC);
+            const output = AND(andAB, notC);
+            
+            updateResultDisplay('circ-and', andAB);
+            updateResultDisplay('circ-not', notC);
+            updateResultDisplay('circ-final', output);
+        }
+        
+        function updateResultDisplay(id, value) {
+            const element = document.getElementById(`result-${id}`);
+            if (element) {
+                element.textContent = value;
+                if (value === 1) {
+                    element.className = 'result-value logic-cell-1';
+                } else {
+                    element.className = 'result-value logic-cell-0';
+                }
+            }
+        }
+        
+        // ==================== DEFINICIÓN DE COMPUERTAS CON DESCRIPCIÓN ====================
+        
+        const gates = [
+            {
+                name: 'AND',
+                icon: '∧',
+                description: 'Salida 1 solo si TODOS los inputs son 1',
+                func: AND
+            },
+            {
+                name: 'OR',
+                icon: '∨',
+                description: 'Salida 1 si CUALQUIER input es 1',
+                func: OR
+            },
+            {
+                name: 'NAND',
+                icon: '⊼',
+                description: 'Inverso de AND (NOT AND)',
+                func: NAND
+            },
+            {
+                name: 'NOR',
+                icon: '⊽',
+                description: 'Inverso de OR (NOT OR)',
+                func: NOR
+            },
+            {
+                name: 'XOR',
+                icon: '⊕',
+                description: 'Salida 1 si inputs son DIFERENTES',
+                func: XOR
+            }
+        ];
+        
+        // ==================== FUNCIÓN PARA GENERAR TABLA DE VERDAD ====================
+        
+        function generateTruthTable(gateFunc, gateName, inputs = 2) {
+            const table = [];
+            const combinations = Math.pow(2, inputs);
+            
+            for (let i = 0; i < combinations; i++) {
+                const inputArray = [];
+                for (let j = inputs - 1; j >= 0; j--) {
+                    inputArray.push((i >> j) & 1);
+                }
+                
+                let output;
+                if (inputs === 1) {
+                    output = gateFunc(inputArray[0]);
+                } else if (inputs === 2) {
+                    output = gateFunc(inputArray[0], inputArray[1]);
+                } else if (inputs === 3) {
+                    output = gateFunc(inputArray[0], inputArray[1], inputArray[2]);
+                }
+                
+                table.push({
+                    inputs: inputArray,
+                    output: output
+                });
+            }
+            
+            return table;
+        }
+        
+        // ==================== INICIALIZACIÓN ====================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✓ DOMContentLoaded - inicializando...');
+            
+            // Inicializar posición del caballete
+            objectPosition = 0;
+            
+            // Verificar que almenos el slider existe
+            const slider = document.getElementById('objectSlider');
+            if (slider) {
+                console.log('✓ objectSlider encontrado');
+            } else {
+                console.error('✗ ERROR: objectSlider NO encontrado');
+            }
+            
+            const posDisplay = document.getElementById('positionDisplay');
+            if (posDisplay) {
+                console.log('✓ positionDisplay encontrado');
+            } else {
+                console.error('✗ ERROR: positionDisplay NO encontrado');
+            }
+            
+            checkSensorStatus();
+            
+            // Configurar eventos de drag and drop para el caballete
+            const kickstand = document.getElementById('kickstand');
+            if (kickstand) {
+                console.log('✓ kickstand encontrado');
+                kickstand.style.cursor = 'grab';
+                kickstand.addEventListener('mousedown', startDrag);
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', stopDrag);
+            } else {
+                console.error('✗ ERROR: kickstand NO encontrado');
+            }
+            
+            // Generar compuertas básicas
+            const gatesContainer = document.getElementById('gatesContainer');
+            
+            gates.forEach(gate => {
+                const table = generateTruthTable(gate.func, gate.name, 2);
+                
+                const card = document.createElement('div');
+                card.className = 'gate-card';
+                card.innerHTML = `
+                    <h3><span class="gate-icon">${gate.icon}</span> Compuerta ${gate.name}</h3>
+                    <p style="color: #666; margin-bottom: 10px; font-size: 0.9em;">${gate.description}</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>A</th>
+                                <th>B</th>
+                                <th>${gate.name}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="${gate.name}Body"></tbody>
+                    </table>
+                `;
+                
+                gatesContainer.appendChild(card);
+                
+                // Renderizar tabla
+                const tbody = card.querySelector('tbody');
+                table.forEach(row => {
+                    const tr = document.createElement('tr');
+                    
+                    const td1 = document.createElement('td');
+                    td1.textContent = row.inputs[0];
+                    td1.className = row.inputs[0] ? 'logic-cell-1' : 'logic-cell-0';
+                    
+                    const td2 = document.createElement('td');
+                    td2.textContent = row.inputs[1];
+                    td2.className = row.inputs[1] ? 'logic-cell-1' : 'logic-cell-0';
+                    
+                    const td3 = document.createElement('td');
+                    td3.textContent = row.output;
+                    td3.className = row.output ? 'logic-cell-1' : 'logic-cell-0';
+                    
+                    tr.appendChild(td1);
+                    tr.appendChild(td2);
+                    tr.appendChild(td3);
+                    tbody.appendChild(tr);
+                });
+            });
+            
+            // Generar tabla NOT
+            const notTable = generateTruthTable(NOT, 'NOT', 1);
+            const notTableContainer = document.getElementById('notTable');
+            const notTbodyElement = notTableContainer.querySelector('tbody');
+            
+            notTable.forEach(row => {
+                const tr = document.createElement('tr');
+                
+                const td1 = document.createElement('td');
+                td1.textContent = row.inputs[0];
+                td1.className = row.inputs[0] ? 'logic-cell-1' : 'logic-cell-0';
+                
+                const td2 = document.createElement('td');
+                td2.textContent = row.output;
+                td2.className = row.output ? 'logic-cell-1' : 'logic-cell-0';
+                
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                notTbodyElement.appendChild(tr);
+            });
+            
+            // Generar circuito combinacional
+            const circuitTable = generateCircuitTable();
+            const circuitTableContainer = document.getElementById('circuitTable');
+            const circuitTbody = circuitTableContainer.querySelector('tbody');
+            
+            circuitTable.forEach(row => {
+                const tr = document.createElement('tr');
+                
+                const td1 = document.createElement('td');
+                td1.textContent = row.A;
+                td1.className = row.A ? 'logic-cell-1' : 'logic-cell-0';
+                
+                const td2 = document.createElement('td');
+                td2.textContent = row.B;
+                td2.className = row.B ? 'logic-cell-1' : 'logic-cell-0';
+                
+                const td3 = document.createElement('td');
+                td3.textContent = row.C;
+                td3.className = row.C ? 'logic-cell-1' : 'logic-cell-0';
+                
+                const td4 = document.createElement('td');
+                td4.textContent = row.andAB;
+                td4.className = row.andAB ? 'logic-cell-1' : 'logic-cell-0';
+                
+                const td5 = document.createElement('td');
+                td5.textContent = row.notC;
+                td5.className = row.notC ? 'logic-cell-1' : 'logic-cell-0';
+                
+                const td6 = document.createElement('td');
+                td6.textContent = row.output;
+                td6.className = row.output ? 'logic-cell-1' : 'logic-cell-0';
+                
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                tr.appendChild(td3);
+                tr.appendChild(td4);
+                tr.appendChild(td5);
+                tr.appendChild(td6);
+                circuitTbody.appendChild(tr);
+            });
+            
+            // Inicializar resultados
+            updateResults();
+            updateNotResult();
+            updateCircuitResults();
+        });
+        
+        // ==================== FUNCIÓN PARA GENERAR CIRCUITO COMBINACIONAL ====================
+        
+        function generateCircuitTable() {
+            const table = [];
+            
+            for (let i = 0; i < 8; i++) {
+                const A = (i >> 2) & 1;
+                const B = (i >> 1) & 1;
+                const C = i & 1;
+                
+                const andAB = AND(A, B);
+                const notC = NOT(C);
+                const output = AND(andAB, notC);
+                
+                table.push({
+                    A: A,
+                    B: B,
+                    C: C,
+                    andAB: andAB,
+                    notC: notC,
+                    output: output
+                });
+            }
+            
+            return table;
+        }
+    </script>
+</body>
+</html>
